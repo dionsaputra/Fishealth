@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -12,6 +13,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 
@@ -20,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private LineChart chart;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +30,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setupChart();
-        setData(40,100f);
+        feedMultiple();
 
     }
 
     private void setupChart() {
         chart = findViewById(R.id.chart);
-        chart.setViewPortOffsets(0,0,0,0);
-        chart.setBackgroundColor(Color.rgb(104,241,175));
+//        chart.setViewPortOffsets(0, 0, 0, 0);
+        chart.setBackgroundColor(Color.rgb(104, 241, 175));
 
-        // no description text
-        chart.getDescription().setEnabled(false);
+        // TODO: chart.setOnChartValueSelectedListener
+
+//        chart.setOnChartValueSelectedListener(this);
+
+        // enable description text
+        chart.getDescription().setEnabled(true);
 
         // enable touch gestures
         chart.setTouchEnabled(true);
@@ -45,31 +52,41 @@ public class MainActivity extends AppCompatActivity {
         // enable scaling and dragging
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
+        chart.setDrawGridBackground(false);
 
         // if disabled, scaling can be done on x- and y-axis separately
-        chart.setPinchZoom(false);
+        chart.setPinchZoom(true);
 
-        chart.setDrawGridBackground(false);
-        chart.setMaxHighlightDistance(300);
+        // set an alternative background color
+//        chart.setBackgroundColor(Color.LTGRAY);
 
-        XAxis x = chart.getXAxis();
-        x.setEnabled(false);
+        LineData data = new LineData();
+        data.setValueTextColor(Color.WHITE);
 
-        YAxis y = chart.getAxisLeft();
-        y.setLabelCount(6, false);
-        y.setTextColor(Color.WHITE);
-        y.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-        y.setDrawGridLines(false);
-        y.setAxisLineColor(Color.WHITE);
+        // add empty data
+        chart.setData(data);
 
-        chart.getAxisRight().setEnabled(false);
+        // get the legend (only possible after setting data)
+        Legend l = chart.getLegend();
 
-        chart.getLegend().setEnabled(false);
+        // modify the legend ...
+        l.setForm(Legend.LegendForm.LINE);
+        l.setTextColor(Color.WHITE);
 
-        chart.animateXY(2000, 2000);
+        XAxis xl = chart.getXAxis();
+        xl.setTextColor(Color.WHITE);
+        xl.setDrawGridLines(false);
+        xl.setAvoidFirstLastClipping(true);
+        xl.setEnabled(true);
 
-        // don't forget to refresh the drawing
-        chart.invalidate();
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setAxisMaximum(100f);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = chart.getAxisRight();
+        rightAxis.setEnabled(false);
     }
 
     private void setData(int count, float range) {
@@ -107,13 +124,88 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            // create a data object with the data sets
-            LineData data = new LineData(set);
-            data.setValueTextSize(9f);
-            data.setDrawValues(false);
+//            // create a data object with the data sets
+//            LineData data = new LineData(set);
+//            data.setValueTextSize(9f);
+//            data.setDrawValues(false);
+//
+//            // set data
+//            chart.setData(data);
+        }
+    }
 
-            // set data
-            chart.setData(data);
+    private void addEntry() {
+        LineData data = chart.getData();
+        if (data != null) {
+            ILineDataSet set = data.getDataSetByIndex(0);
+            if (set == null) {
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), (float) (Math.random() * 20) + 30f), 0);
+            data.notifyDataChanged();
+
+            chart.notifyDataSetChanged();
+            chart.setVisibleXRangeMaximum(10);
+            chart.moveViewToX(data.getEntryCount());
+        }
+    }
+
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setColor(ColorTemplate.getHoloBlue());
+        set.setCircleColor(Color.WHITE);
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setFillColor(Color.WHITE);
+        set.setFillAlpha(65);
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.BLACK);
+        set.setValueTextSize(12f);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setCubicIntensity(0.2f);
+        set.setDrawFilled(true);
+        set.setDrawValues(true);
+        return set;
+    }
+
+    private void feedMultiple() {
+        if (thread != null) {
+            thread.interrupt();
+        }
+
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                addEntry();
+            }
+        };
+
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<100; i++) {
+                    runOnUiThread(runnable);
+                    try {
+                        Thread.sleep(180);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        thread.start();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (thread != null) {
+            thread.interrupt();
         }
     }
 }
