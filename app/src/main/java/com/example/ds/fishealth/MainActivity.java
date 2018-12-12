@@ -10,18 +10,14 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IFillFormatter;
-import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
-
-import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LineChart chart;
+    private LineChart chart, chart2;
     private Thread thread;
 
     @Override
@@ -29,15 +25,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupChart();
-        feedMultiple();
 
+        chart = findViewById(R.id.chart);
+        chart2 = findViewById(R.id.chart2);
+
+        setupChart(chart);
+        setupChart(chart2);
+
+        feedMultiple();
     }
 
-    private void setupChart() {
-        chart = findViewById(R.id.chart);
+    private void setupChart(LineChart chart) {
 //        chart.setViewPortOffsets(0, 0, 0, 0);
-        chart.setBackgroundColor(Color.rgb(104, 241, 175));
+        chart.setBackgroundColor(Color.parseColor("#66aaff"));
 
         // TODO: chart.setOnChartValueSelectedListener
 
@@ -87,51 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
-    }
-
-    private void setData(int count, float range) {
-        ArrayList<Entry> values = new ArrayList<>();
-        for (int i=0; i<count; i++) {
-            float val = (float) (Math.random() * (range + 1)) + 20;
-            values.add(new Entry(i,val));
-        }
-
-        LineDataSet set;
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-            set = (LineDataSet) chart.getData().getDataSetByIndex(0);
-            set.setValues(values);
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
-        } else {
-            // create dataset and give it a type
-            set = new LineDataSet(values, "DataSet 1");
-
-            set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-            set.setCubicIntensity(0.2f);
-            set.setDrawFilled(true);
-            set.setDrawCircles(true);
-            set.setLineWidth(1.8f);
-            set.setCircleRadius(4f);
-            set.setHighLightColor(Color.rgb(244,177,117));
-            set.setColor(Color.WHITE);
-            set.setFillColor(Color.WHITE);
-            set.setFillAlpha(100);
-            set.setDrawHorizontalHighlightIndicator(false);
-            set.setFillFormatter(new IFillFormatter() {
-                @Override
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return chart.getAxisLeft().getAxisMinimum();
-                }
-            });
-
-//            // create a data object with the data sets
-//            LineData data = new LineData(set);
-//            data.setValueTextSize(9f);
-//            data.setDrawValues(false);
-//
-//            // set data
-//            chart.setData(data);
-        }
     }
 
     private void addEntry() {
