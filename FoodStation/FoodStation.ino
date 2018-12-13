@@ -29,7 +29,7 @@ void loop() {
   distance = duration * 0.034 / 2;
 
   if (distance <= MAX_DISTANCE) {
-    servo.write(0);
+    servo.write(180);
   } else {
     servo.write(90);
   }

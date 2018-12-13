@@ -2,6 +2,8 @@ package com.example.ds.fishealth;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -27,7 +29,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private LineChart chart, chart2;
-    private Thread thread;
+    private TextView foodInfo;
+    private Menu setting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.chart2);
+        foodInfo = findViewById(R.id.food_info);
 
         setupChart(chart, 20f, 40f);
         setupChart(chart2, 60f, 100f);
@@ -167,6 +171,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        root.child("FoodVolume").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Integer foodHight = dataSnapshot.getValue(Integer.class);
+                if (foodHight > 20) foodHight = 20;
+                int percentage = (20-foodHight) * 5;
+                foodInfo.setText("Ketersediaan pakan: " + String.valueOf(percentage) + "%");
             }
 
             @Override
