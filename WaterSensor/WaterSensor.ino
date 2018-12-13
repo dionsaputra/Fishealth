@@ -1,26 +1,109 @@
-#include <L298N.h>
+//
+// Copyright 2015 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 
+// FirebaseDemo_ESP8266 is a sample that demo the different functions
+// of the FirebaseArduino API.
 
-const int EN_A = 0;
-const int IN_1 = 7;
-const int IN_2 = 6;
-const int IN_3 = 5;
-const int IN_4 = 4;
-const int EN_B = 1;
+#include <ESP8266WiFi.h>
+#include <FirebaseArduino.h>
 
-L298N driver(EN_A,IN_1,IN_2,IN_3,IN_4,EN_B);
+// Set these to run example.
+#define FIREBASE_HOST "tubesrobotika.firebaseio.com"
+#define FIREBASE_AUTH "AIzaSyA9_Rz_OmlXMibmziQYYh40rwp9Fb45Q0w"
+#define WIFI_SSID "KOST PAK NANA ATAS 2"
+#define WIFI_PASSWORD "evalia00"
 
-//L293D
-//Motor A
-const int motorPin1  = 3;  // Pin 14 of L293
-const int motorPin2  = 4;  // Pin 10 of L293
+void setup() {
+  Serial.begin(9600);
 
-//This will run only one time.
-void setup(){
+  // connect to wifi.
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+  
+  Firebase.begin(FIREBASE_HOST);
 }
 
+int n = 0;
 
-void loop(){
-  //This code  will turn Motor A clockwise for 2 sec.
-  driver.forward(1000,150);  
+void loop() {
+  // set value
+  Firebase.setFloat("tubesrobotika", 42.0);
+  // handle error
+  if (Firebase.failed()) {
+      Serial.print("setting /number failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  delay(1000);
+  
+  // update value
+  Firebase.setFloat("number", 43.0);
+  // handle error
+  if (Firebase.failed()) {
+      Serial.print("setting /number failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  delay(1000);
+
+  // get value 
+  Serial.print("number: ");
+  Serial.println(Firebase.getFloat("number"));
+  delay(1000);
+
+  // remove value
+  Firebase.remove("number");
+  delay(1000);
+
+  // set string value
+  Firebase.setString("message", "hello world");
+  // handle error
+  if (Firebase.failed()) {
+      Serial.print("setting /message failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  delay(1000);
+  
+  // set bool value
+  Firebase.setBool("truth", false);
+  // handle error
+  if (Firebase.failed()) {
+      Serial.print("setting /truth failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  delay(1000);
+
+  // append a new value to /logs
+  String name = Firebase.pushInt("logs", n++);
+  // handle error
+  if (Firebase.failed()) {
+      Serial.print("pushing /logs failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  Serial.print("pushed: /logs/");
+  Serial.println(name);
+  delay(1000);
 }
