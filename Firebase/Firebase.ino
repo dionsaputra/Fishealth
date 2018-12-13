@@ -10,12 +10,9 @@ dht DHT;
 #define DHT11_PIN 2    // Data Pin of DHT 11 , for NodeMCU D5 GPIO no. is 14
 
 
-
 void setup() {
   Serial.begin(9600);
 
-
- 
    WiFi.begin (WIFI_SSID, WIFI_PASSWORD);
    while (WiFi.status() != WL_CONNECTED) {
     delay(500);
