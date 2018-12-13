@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "952413818302",
+    "firebase_url": "https://tubesrobotika.firebaseio.com",
+    "project_id": "tubesrobotika",
+    "storage_bucket": "tubesrobotika.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952413818302:android:51e780cb8d2f68a4",
+        "android_client_info": {
+          "package_name": "com.example.ds.fishealth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "952413818302-uk5r3hnpos1vkcos8bsok8q8b7967vt0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAABd_wwy7X2vnK2eorCPOAQMpq_GA8brY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

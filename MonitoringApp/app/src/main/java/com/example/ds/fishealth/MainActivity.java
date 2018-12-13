@@ -2,6 +2,7 @@ package com.example.ds.fishealth;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -12,7 +13,15 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -81,15 +90,15 @@ public class MainActivity extends AppCompatActivity {
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMaximum(100f);
-        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(40f);
+        leftAxis.setAxisMinimum(20f);
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
     }
 
-    private void addEntry() {
+    private void addEntry(int value) {
         LineData data = chart.getData();
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
@@ -98,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 data.addDataSet(set);
             }
 
-            data.addEntry(new Entry(set.getEntryCount(), (float) (Math.random() * 20) + 30f), 0);
+            data.addEntry(new Entry(set.getEntryCount(), (float)value), 0);
             data.notifyDataChanged();
 
             chart.notifyDataSetChanged();
-            chart.setVisibleXRangeMaximum(10);
+            chart.setVisibleXRangeMaximum(5);
             chart.moveViewToX(data.getEntryCount());
         }
     }
@@ -127,33 +136,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void feedMultiple() {
-        if (thread != null) {
-            thread.interrupt();
-        }
-
-        final Runnable runnable = new Runnable() {
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference dbTemp = root.child("Temp");
+        dbTemp.addChildEventListener(new ChildEventListener() {
             @Override
-            public void run() {
-                addEntry();
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Integer temp = dataSnapshot.getValue(Integer.class);
+                addEntry(temp);
             }
-        };
 
-        thread = new Thread(new Runnable() {
             @Override
-            public void run() {
-                for (int i=0; i<100; i++) {
-                    runOnUiThread(runnable);
-                    try {
-                        Thread.sleep(180);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
-
-        thread.start();
-
     }
 
     @Override
