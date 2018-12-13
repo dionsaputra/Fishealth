@@ -14,7 +14,7 @@
         android:layout_weight="1">
 
         <TextView
-            android:text="Suhu Air"
+            android:text="Suhu"
             android:background="#66aaff"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
@@ -34,14 +34,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:layout_marginTop="4dp">
+        android:layout_weight="1">
 
         <TextView
-            android:text="Jumlah Pakan"
+            android:text="Kelembapan"
             android:background="#66aaff"
             android:textAlignment="center"
             android:textColor="#FFFFFF"

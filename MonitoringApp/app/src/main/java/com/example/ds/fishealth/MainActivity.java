@@ -38,41 +38,21 @@ public class MainActivity extends AppCompatActivity {
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.chart2);
 
-        setupChart(chart);
-        setupChart(chart2);
+        setupChart(chart, 20f, 40f);
+        setupChart(chart2, 60f, 100f);
 
         feedMultiple();
     }
 
-    private void setupChart(LineChart chart) {
-//        chart.setViewPortOffsets(0, 0, 0, 0);
+    private void setupChart(LineChart chart, float minRange, float maxRange) {
         chart.setBackgroundColor(Color.parseColor("#66aaff"));
-
-        // TODO: chart.setOnChartValueSelectedListener
-
-//        chart.setOnChartValueSelectedListener(this);
-
-        // enable description text
-        chart.getDescription().setEnabled(true);
-
-        // enable touch gestures
         chart.setTouchEnabled(true);
-
-        // enable scaling and dragging
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
         chart.setDrawGridBackground(false);
-
-        // if disabled, scaling can be done on x- and y-axis separately
         chart.setPinchZoom(true);
-
-        // set an alternative background color
-//        chart.setBackgroundColor(Color.LTGRAY);
-
         LineData data = new LineData();
         data.setValueTextColor(Color.WHITE);
-
-        // add empty data
         chart.setData(data);
 
         // get the legend (only possible after setting data)
@@ -90,15 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMaximum(40f);
-        leftAxis.setAxisMinimum(20f);
+        leftAxis.setAxisMaximum(maxRange);
+        leftAxis.setAxisMinimum(minRange);
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
     }
 
-    private void addEntry(int value) {
+    private void addEntry(LineChart chart, int value) {
         LineData data = chart.getData();
         if (data != null) {
             ILineDataSet set = data.getDataSetByIndex(0);
@@ -117,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private LineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        LineDataSet set = new LineDataSet(null, "");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColor(ColorTemplate.getHoloBlue());
         set.setCircleColor(Color.WHITE);
@@ -142,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Integer temp = dataSnapshot.getValue(Integer.class);
-                addEntry(temp);
+                addEntry(chart, temp);
             }
 
             @Override
@@ -165,13 +145,34 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (thread != null) {
-            thread.interrupt();
-        }
+        DatabaseReference dbHumidity = root.child("Humidity");
+        dbHumidity.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Integer humidity = dataSnapshot.getValue(Integer.class);
+                addEntry(chart2, humidity);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }
