@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>      // wifi module library
 
 #define FIREBASE_HOST "tubesrobotika.firebaseio.com"
-#define WIFI_SSID "KOST PAK NANA ATAS 2" 
-#define WIFI_PASSWORD "evalia00" 
+#define WIFI_SSID "My ASUS" 
+#define WIFI_PASSWORD "fendadida" 
 #define DHT11_PIN 2
 #define TRIG_PIN 16 // D0
 #define ECHO_PIN 5  // D1

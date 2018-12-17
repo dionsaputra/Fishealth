@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
     private LineChart chart, chart2;
     private TextView foodInfo;
-    private Menu setting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Integer foodHight = dataSnapshot.getValue(Integer.class);
-                if (foodHight > 20) foodHight = 20;
-                int percentage = (20-foodHight) * 5;
+                if (foodHight > 15) foodHight = 15;
+                int percentage = (15-foodHight) * 5;
                 foodInfo.setText("Ketersediaan pakan: " + String.valueOf(percentage) + "%");
             }
 
